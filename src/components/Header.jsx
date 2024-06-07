@@ -1,8 +1,12 @@
 import React from 'react'
+import { useMemo } from 'react'
+export const Header = ({cart , removeFromCart, addProduct, reduceProduct, emptyCart}) => {
 
-export const Header = (cart) => {
+  //State Derivado y useMemo para no renderizar toda la pag completa y mejorar el rendimiento
+  const isEmpty = useMemo(() => cart.length === 0, [cart])
 
-    const name = "juan"
+    // calcular el total a pagar en el carrito
+  const cartTotal = useMemo(() => cart.reduce((total, item) => total + (item.quantity * item.price), 0), [cart])
   return (
     <header className="py-5 header">
         <div className="container-xl">
@@ -19,7 +23,12 @@ export const Header = (cart) => {
                         <img className="img-fluid" src="/img/carrito.png" alt="imagen carrito" />
 
                         <div id="carrito" className="bg-white p-3">
-                            <p className="text-center">El carrito esta vacio</p>
+                            
+                            {isEmpty ? (
+                                <p className="text-center">El carrito esta vacio</p>
+                            ) : (
+
+                            <>
                             <table className="w-100 table">
                                 <thead>
                                     <tr>
@@ -31,25 +40,30 @@ export const Header = (cart) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
+                                    {cart.map( guitar => (
+
+                                    
+                                    <tr key={guitar.id}>
                                         <td>
-                                            <img className="img-fluid" src="/img/guitarra_02.jpg" alt="imagen guitarra" />
+                                            <img className="img-fluid" src={`/img/${guitar.image}.jpg`} alt="imagen guitarra" />
                                         </td>
-                                        <td>SRV</td>
+                                        <td>{guitar.name}</td>
                                         <td className="fw-bold">
-                                                $299
+                                                $ {guitar.price}
                                         </td>
                                         <td className="flex align-items-start gap-4">
                                             <button
                                                 type="button"
                                                 className="btn btn-dark"
+                                                onClick={() => reduceProduct(guitar.id)}
                                             >
                                                 -
                                             </button>
-                                                1
+                                                {guitar.quantity}
                                             <button
                                                 type="button"
                                                 className="btn btn-dark"
+                                                onClick={()=> addProduct(guitar.id)}
                                             >
                                                 +
                                             </button>
@@ -58,16 +72,24 @@ export const Header = (cart) => {
                                             <button
                                                 className="btn btn-danger"
                                                 type="button"
+                                                onClick={() => removeFromCart(guitar.id)} //para que el usuario clickee 
                                             >
                                                 X
                                             </button>
                                         </td>
                                     </tr>
+                                    ))}
                                 </tbody>
                             </table>
+                            <p className="text-end">Total pagar: <span className="fw-bold">${cartTotal}</span></p>
+                            </>
+                            )}
 
-                            <p className="text-end">Total pagar: <span className="fw-bold">$899</span></p>
-                            <button className="btn btn-dark w-100 mt-3 p-2">Vaciar Carrito</button>
+                            
+                            <button 
+                                className="btn btn-dark w-100 mt-3 p-2"
+                                onClick={emptyCart}
+                            >Vaciar Carrito</button>
                         </div>
                     </div>
                 </nav>
